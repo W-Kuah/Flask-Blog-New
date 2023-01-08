@@ -1,0 +1,212 @@
+# File to provide...
+## - Input parameter validation,
+## - URL endpoint definition, 
+## - Output response data validation...
+# for server configuration.
+
+# swagger.yml file is a blueprint for the API. 
+# It define what data the web server can expect and how the server should respond to requests.
+
+# Define metadata
+## - title: Title included in the Connexion-generated UI system
+## - description: Description of what the API provides or is about
+## - version: Version value for the API
+openapi: 3.0.0
+info:
+  title: "Flask REST API"
+  description: "An API about peopl and notes"
+  version: "1.0.0"
+
+
+# Define the root path of your API
+## Access all of the API paths relative to "http://localhost:8000/api"
+servers:
+  - url: "/api"
+
+
+# Define building blocks in your OpenAPI specification...
+# ...that you can reference from other parts of your specification.
+components:
+  schemas:
+  ## Define schemas for a single person
+  ### - type: The data type of the schema
+  ### - required: The required properties
+  #### The dash (-) in front of - lname indicates that required can contain a list of properties.
+    Person:
+      type: "object"
+      required:
+        - lname
+      properties:
+        fname:
+          type: "string"
+        lname:
+          type: "string"
+
+    FirstName:
+      type: "object"
+      required:
+        - fname
+      properties:
+        fname:
+          type: "string"
+  ## 
+  parameters:
+    lname:
+      name: "lname"
+      description: "Last name of the person to get"
+      in: path
+      required: True
+      schema:
+        type: "string"
+      
+    note_id:
+      name: "note_id"
+      description: "ID of the note"
+      in: path
+      required: True
+      schema:
+        type: "integer"
+
+
+# Define API endpoints in a paths block
+
+paths:
+  /people:
+    ## - /people: The relative URL of your API endpoint
+    ## - get: The HTTP method that this URL endpoint will respond to
+    ## this creates the GET /api/people URL endpoint that you can access at 
+    ### "http://localhost:8000/api/people"
+
+    ## - operationId: The Python function that’ll respond to the request
+    ## - tags: The tags assigned to this endpoint, which allow you to group the operations in the UI
+    ## - summary: The UI display text for this endpoint
+    ## - responses: The status codes that the endpoint responds with
+    get:
+      operationId: "people.read_all"
+      tags:
+        - "People"
+      summary: "Read the list of people"
+      responses:
+        "200":
+          description: "Successfully read people list"
+
+    post:
+      operationId: "people.create"
+      tags:
+        - People
+      summary: "Create a person"
+      requestBody:
+        description: "Person to create"
+        required: True
+        content:
+          application/json:
+            schema:
+              x-body-name: "person"
+              $ref: "#/components/schemas/Person"
+      responses:
+        "201":
+          description: "Successfully created person"
+
+  /people/{lname}:
+    get:
+      operationId: "people.read_one"
+      tags:
+        - People
+      summary: "Read one person"
+      parameters:
+       - $ref: "#/components/parameters/lname"
+      responses:
+        "200":
+          description: "Successfully read person"
+    
+    put:
+      tags:
+        - People
+      operationId: "people.update"
+      summary: "Update a person"
+      parameters:
+        - $ref: "#/components/parameters/lname"
+      responses:
+        "200":
+          description: "Successfully updated person"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: "person"
+              $ref: "#/components/schemas/FirstName"
+    delete:
+      tags:
+        - People
+      operationId: "people.delete"
+      summary: "Delete a person"
+      parameters:
+        - $ref: "#/components/parameters/lname"
+      responses:
+        "204":
+          description: "Successfully deleted person"
+  /notes:
+    post:
+      operationId: "notes.create"
+      tags:
+        - Notes
+      summary: "Create a note associated with a person"
+      requestBody:
+        description: "Note to create"
+        required: True
+        content:
+          application/json:
+            schema:
+              x-body-name: "note"
+              type: "object"
+              properties:
+                person_id:
+                  type: "integer"
+                content:
+                  type: "string"
+      responses:
+        "201":
+          description: "Succesfully created a note"
+
+  /notes/{note_id}:
+    get:
+      operationId: "notes.read_one"
+      tags:
+        - Notes
+      summary: "Read one note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      responses:
+        "200":
+          description: "Successfully read one note"
+
+    put:
+      tags:
+        - Notes
+      operationId: "notes.update"
+      summary: "Update a note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      responses:
+        "200":
+          description: "Successfully updated note"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              x-body-name: "note"
+              type: "object"
+              properties:
+                content:
+                  type: "string"
+
+    delete:
+      tags:
+        - Notes
+      operationId: "notes.delete"
+      summary: "Delete a note"
+      parameters:
+        - $ref: "#/components/parameters/note_id"
+      responses:
+        "204":
+          description: "Successfully delete one"

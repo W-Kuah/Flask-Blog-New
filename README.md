@@ -62,4 +62,3 @@ Maintainers and Contributors:
 Author: Warren Kuah
 Backend Foundations: Philipp Acsany
     - https://realpython.com/flask-connexion-rest-api-part-3/
-Frontend Advice: Richard Pienaar
